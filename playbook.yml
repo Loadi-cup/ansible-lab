@@ -1,0 +1,39 @@
+---
+- name: Laboratorio Ansible con Docker
+  hosts: docker
+  gather_facts: true
+  tasks:
+    - name: Mostrar el nombre del host
+      ansible.builtin.debug:
+        msg: "Nombre del host: {{ inventory_hostname }}"
+
+    - name: Mostrar el sistema operativo
+      ansible.builtin.debug:
+        msg: "Sistema operativo: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+
+    - name: Crear el directorio /tmp/ansible-demo
+      ansible.builtin.file:
+        path: /tmp/ansible-demo
+        state: directory
+        mode: "0755"
+
+    - name: Crear info.txt con el nombre del servidor y el sistema operativo
+      ansible.builtin.copy:
+        dest: /tmp/ansible-demo/info.txt
+        content: "Servidor: {{ inventory_hostname }}\nSistema operativo: {{ ansible_distribution }} {{ ansible_distribution_version }}\n"
+        mode: "0644"
+
+    - name: Crear directorios con loop
+      ansible.builtin.file:
+        path: "/tmp/ansible-demo/{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - logs
+        - backup
+        - config
+
+    - name: Mensaje solo si el sistema operativo es Ubuntu
+      ansible.builtin.debug:
+        msg: "Este servidor ({{ inventory_hostname }}) es Ubuntu"
+      when: ansible_distribution == "Ubuntu"
